@@ -9,6 +9,8 @@ import InputBase from '@material-ui/core/InputBase'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
 
+import '../../App.css'
+
 import { fade, withStyles } from '@material-ui/core/styles'
 
 // ===================================================================================================================
@@ -69,6 +71,7 @@ const styles = theme => ({
   title: {
     flexGrow: 1,
     display: 'none',
+    fontFamily: 'PokemonFont',
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },

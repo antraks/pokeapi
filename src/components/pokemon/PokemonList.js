@@ -3,6 +3,9 @@ import PropTypes from 'prop-types'
 import { withStyles } from '@material-ui/core/styles'
 
 import Grid from '@material-ui/core/Grid'
+import Typography from "@material-ui/core/Typography"
+
+import '../../App.css'
 
 import PokemonTile from './PokemonTile'
 
@@ -12,15 +15,15 @@ import PokemonTile from './PokemonTile'
 
 class PokemonList extends Component {
   render() {
-    const { classes } = this.props
+    const { classes, pokemons, showDialog } = this.props
 
-    const list = this.props.pokemons && this.props.pokemons.map(p => {
+    const list = pokemons && pokemons.map(p => {
       return (
         <Grid item xs={6} sm={3} md={2} key={p.name}>
           <PokemonTile
             name={p.name}
             url={p.url}
-            onClick={() => this.props.showDialog(p.name)}
+            onClick={() => showDialog(p.name)}
           />
         </Grid>
       )
@@ -28,20 +31,28 @@ class PokemonList extends Component {
 
     return (
       <div className={classes.root}>
-        <Grid container spacing={3}>
-          {list}
-        </Grid>
+        {pokemons && pokemons.length ?
+          <Grid container spacing={3}>
+            {list}
+          </Grid> :
+          <Typography className={classes.notFound} variant="h6" noWrap>
+            Aucun pokemon trouvé !
+          </Typography>}
       </div>
     )
   }
 }
 
 // ===================================================================================================================
-//      STYLES
+// STYLES
 // ===================================================================================================================
 
 const styles = theme => ({
-  root: {}
+  notFound: {
+    fontFamily: 'PokemonFont',
+    textAlign: 'center',
+    marginTop: '40px'
+  }
 })
 
 PokemonList.propTypes = {
