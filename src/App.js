@@ -36,7 +36,10 @@ class App extends Component {
 
   async componentDidMount() {
     const { data } = await axios.get(`${POKEAPI_URL}?offset=0&limit=10000`)
-    this.props.setPokemons(data.results)
+    this.props.setPokemons(data.results.filter(p => {
+      const index = p.url && p.url.split('/')[p.url.split('/').length - 2]
+      return index < 1000
+    }))
   }
 
   async showDialog(name) {
