@@ -28,13 +28,15 @@ class App extends Component {
       dialogOpen: false,
       selectedPokemon: null,
       selectedPokemonName: null,
-      page: 0
+      search: null,
+      selectedPage: 0,
+      resetPage: 0
     }
   }
 
   async componentDidMount() {
     const { data } = await axios.get(`${POKEAPI_URL}?offset=0&limit=10000`)
-    this.props.setPokemons(data)
+    this.props.setPokemons(data.results)
   }
 
   async showDialog(name) {
@@ -43,24 +45,54 @@ class App extends Component {
     this.setState({ selectedPokemon: data })
   }
 
-  handleClose(value) {
+  handleClose() {
     this.setState({ dialogOpen: false })
+  }
+
+  handlePaginationSelect(val) {
+    this.setState({ selectedPage: val })
+    // this.setState({ pokemons: this.props.pokemons.results.slice(page * TILES_BY_PAGE, (page + 1) * TILES_BY_PAGE) })
+  }
+
+  handlePaginationChange(val) {
+    this.setState({ resetPage: false })
+  }
+
+  handleSearch(val) {
+    // const pokemons = this.props.pokemons.results.filter(p => p.name.includes(val))
+    this.setState({ search: val, selectedPage: 0, resetPage: true })
+  }
+
+  filteredPokemons() {
+    return this.props.pokemons && this.props.pokemons
+      .filter(p => p.name.includes(this.state.search || ''))
+  }
+
+  pokemonsToShow() {
+    return this.filteredPokemons().slice(this.state.selectedPage * TILES_BY_PAGE, (this.state.selectedPage + 1) * TILES_BY_PAGE)
+  }
+
+  numberOfPages() {
+    return this.filteredPokemons() && Math.ceil(this.filteredPokemons().length / TILES_BY_PAGE)
   }
 
   render() {
     const { classes, pokemons } = this.props
-    const { dialogOpen, selectedPokemon, selectedPokemonName } = this.state
+    const { dialogOpen, selectedPokemon, selectedPokemonName, resetPage } = this.state
 
     return (
       <>
         <CssBaseline/>
-        <SearchAppBar/>
+        <SearchAppBar onChange={e => this.handleSearch(e)}/>
         <Container className={classes.container}>
-          <PokemonList pokemons={pokemons && pokemons.results && pokemons.results.slice(this.state.page * TILES_BY_PAGE, (this.state.page + 1) * TILES_BY_PAGE)} showDialog={e => this.showDialog(e)}/>
-          <Pagination
-            max={pokemons && pokemons.count && (Math.ceil(pokemons.count / TILES_BY_PAGE))}
-            onSelect={(e) => this.setState({ page: e - 1 })}
-          />
+          <PokemonList pokemons={this.pokemonsToShow()} showDialog={e => this.showDialog(e)}/>
+          {this.numberOfPages() > 1 ?
+            <Pagination
+              max={this.numberOfPages()}
+              onChange={(e) => this.handlePaginationChange(e - 1)}
+              onSelect={(e) => this.handlePaginationSelect(e - 1)}
+              reset={resetPage}
+            /> : null}
 
           <PokemonDialog data={selectedPokemon} name={selectedPokemonName} selected={selectedPokemon} open={dialogOpen} onClose={() => this.handleClose()}/>
         </Container>

@@ -10,10 +10,29 @@ import Slider from "@material-ui/core/Slider"
 // ===================================================================================================================
 
 class Pagination extends Component {
-  render() {
-    const { classes } = this.props
+  constructor(props) {
+    super(props)
+    this.state = {
+      value: 1
+    }
+  }
 
-    // const buttons = [...Array(this.props.max)].map((e, i) => <Button variant="contained" key={i} onClick={() => this.props.onSelect(i)}>{i + 1}</Button>)
+  handleChange(val) {
+    this.setState({ value: val })
+  }
+
+  componentDidUpdate(prevProps) {
+    // Typical usage (don't forget to compare props):
+    // if (this.props.userID !== prevProps.userID) {
+    //   this.fetchData(this.props.userID);
+    // }
+    if (this.props.reset !== prevProps.reset) {
+      this.setState({ value: 1 })
+    }
+  }
+
+  render() {
+    const { classes, max, reset } = this.props
 
     return (
       <>
@@ -22,11 +41,13 @@ class Pagination extends Component {
           defaultValue={1}
           aria-labelledby="discrete-slider"
           valueLabelDisplay="auto"
+          onChange={(e, val) => this.handleChange(val)}
           onChangeCommitted={(e, val) => this.props.onSelect(val)}
           step={1}
           marks
           min={1}
-          max={this.props.max}
+          max={max}
+          value={this.state.value}
         />
       </>
     )

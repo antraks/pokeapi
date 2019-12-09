@@ -16,7 +16,7 @@ class PokemonList extends Component {
 
     const list = this.props.pokemons && this.props.pokemons.map(p => {
       return (
-        <Grid item xs={6} sm={2} key={p.name}>
+        <Grid item xs={6} sm={3} md={2} key={p.name}>
           <PokemonTile
             name={p.name}
             url={p.url}

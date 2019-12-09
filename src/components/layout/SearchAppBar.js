@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { Component } from 'react'
+import PropTypes from "prop-types"
 
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -8,9 +9,57 @@ import InputBase from '@material-ui/core/InputBase'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
 
-import { fade, makeStyles } from '@material-ui/core/styles'
+import { fade, withStyles } from '@material-ui/core/styles'
 
-const useStyles = makeStyles(theme => ({
+// ===================================================================================================================
+//      CLASS
+// ===================================================================================================================
+
+class SearchAppBar extends Component {
+  render() {
+    const { classes } = this.props
+
+    return (
+      <div className={classes.root}>
+        <AppBar position="fixed">
+          <Toolbar>
+            <IconButton
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="open drawer"
+            >
+              <MenuIcon/>
+            </IconButton>
+            <Typography className={classes.title} variant="h6" noWrap>
+              PokeAPI
+            </Typography>
+            <div className={classes.search}>
+              <div className={classes.searchIcon}>
+                <SearchIcon/>
+              </div>
+              <InputBase
+                placeholder="Chercher…"
+                classes={{
+                  root: classes.inputRoot,
+                  input: classes.inputInput,
+                }}
+                inputProps={{ 'aria-label': 'search' }}
+                onChange={e => this.props.onChange(e.target.value)}
+              />
+            </div>
+          </Toolbar>
+        </AppBar>
+      </div>
+    )
+  }
+}
+
+// ===================================================================================================================
+//      STYLES
+// ===================================================================================================================
+
+const styles = theme => ({
   root: {
     flexGrow: 1,
   },
@@ -61,41 +110,10 @@ const useStyles = makeStyles(theme => ({
       }
     }
   }
-}))
+})
 
-export default function SearchAppBar() {
-  const classes = useStyles();
-
-  return (
-    <div className={classes.root}>
-      <AppBar position="fixed">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="open drawer"
-          >
-            <MenuIcon/>
-          </IconButton>
-          <Typography className={classes.title} variant="h6" noWrap>
-            PokeAPI
-          </Typography>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon/>
-            </div>
-            <InputBase
-              placeholder="Chercher…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </div>
-        </Toolbar>
-      </AppBar>
-    </div>
-  )
+SearchAppBar.propTypes = {
+  classes: PropTypes.object.isRequired
 }
+
+export default withStyles(styles)(SearchAppBar)
