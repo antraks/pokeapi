@@ -1,7 +1,6 @@
 ## Installation
 
 ```
-git init
 git clone https://github.com/antraks/pokeapi.git
 cd pokeapi
 yarn install

@@ -19,10 +19,11 @@ class PokemonList extends Component {
 
     const list = pokemons && pokemons.map(p => {
       return (
-        <Grid item xs={6} sm={3} md={2} key={p.name}>
+        <Grid item xs={6} sm={3} key={p.name}>
           <PokemonTile
             name={p.name}
             url={p.url}
+            isFavorite={p.isFavorite}
             onClick={() => showDialog(p.name)}
           />
         </Grid>
@@ -44,19 +45,25 @@ class PokemonList extends Component {
 }
 
 // ===================================================================================================================
+//      PROPTYPES
+// ===================================================================================================================
+
+PokemonList.propTypes = {
+  classes: PropTypes.object.isRequired,
+  pokemons: PropTypes.array.isRequired,
+  showDialog: PropTypes.func.isRequired
+}
+
+// ===================================================================================================================
 // STYLES
 // ===================================================================================================================
 
-const styles = theme => ({
+const styles = () => ({
   notFound: {
     fontFamily: 'PokemonFont',
     textAlign: 'center',
     marginTop: '40px'
   }
 })
-
-PokemonList.propTypes = {
-  classes: PropTypes.object.isRequired
-}
 
 export default withStyles(styles)(PokemonList)

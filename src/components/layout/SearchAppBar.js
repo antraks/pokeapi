@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
-import PropTypes from "prop-types"
+import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import compose from 'recompose/compose'
 
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
@@ -8,6 +10,8 @@ import Typography from '@material-ui/core/Typography'
 import InputBase from '@material-ui/core/InputBase'
 import MenuIcon from '@material-ui/icons/Menu'
 import SearchIcon from '@material-ui/icons/Search'
+import FavoriteIcon from '@material-ui/icons/Favorite'
+import Badge from '@material-ui/core/Badge'
 
 import '../../App.css'
 
@@ -19,7 +23,9 @@ import { fade, withStyles } from '@material-ui/core/styles'
 
 class SearchAppBar extends Component {
   render() {
-    const { classes } = this.props
+    const { classes, pokemons } = this.props
+
+    const favorites = pokemons && pokemons.filter(p => p.isFavorite)
 
     return (
       <div className={classes.root}>
@@ -36,6 +42,11 @@ class SearchAppBar extends Component {
             <Typography className={classes.title} variant="h6" noWrap>
               PokeAPI
             </Typography>
+            {favorites && favorites.length > 0 ?
+              <Badge badgeContent={favorites.length} className={classes.badge} color="secondary">
+                <FavoriteIcon/>
+              </Badge> : null
+            }
             <div className={classes.search}>
               <div className={classes.searchIcon}>
                 <SearchIcon/>
@@ -58,6 +69,25 @@ class SearchAppBar extends Component {
 }
 
 // ===================================================================================================================
+//      PROPTYPES
+// ===================================================================================================================
+
+SearchAppBar.propTypes = {
+  classes: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired
+}
+
+// ===================================================================================================================
+//      GETTERS
+// ===================================================================================================================
+
+const mapStateToProps = state => {
+  return {
+    pokemons: state.pokemons
+  }
+}
+
+// ===================================================================================================================
 //      STYLES
 // ===================================================================================================================
 
@@ -75,6 +105,9 @@ const styles = theme => ({
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },
+  },
+  badge: {
+    marginRight: '20px'
   },
   search: {
     position: 'relative',
@@ -115,8 +148,7 @@ const styles = theme => ({
   }
 })
 
-SearchAppBar.propTypes = {
-  classes: PropTypes.object.isRequired
-}
-
-export default withStyles(styles)(SearchAppBar)
+export default compose(
+  withStyles(styles, { name: 'SearchAppBar' }),
+  connect(mapStateToProps)
+)(SearchAppBar)

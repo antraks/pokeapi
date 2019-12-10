@@ -13,6 +13,7 @@ import SearchAppBar from "./components/layout/SearchAppBar"
 import PokemonList from './components/pokemon/PokemonList'
 import PokemonDialog from './components/dialogs/PokemonDialog'
 import Pagination from './components/pagination/Pagination'
+import FavoritePokemons from "./components/pokemon/FavoritePokemons";
 
 const POKEAPI_URL = 'https://pokeapi.co/api/v2/pokemon'
 const TILES_BY_PAGE = 24
@@ -27,10 +28,10 @@ class App extends Component {
     this.state = {
       dialogOpen: false,
       selectedPokemon: null,
-      selectedPokemonName: null,
+      selectedPokemonMainData: null,
       search: null,
       selectedPage: 0,
-      resetPage: 0
+      resetPage: false
     }
   }
 
@@ -54,15 +55,13 @@ class App extends Component {
 
   handlePaginationSelect(val) {
     this.setState({ selectedPage: val })
-    // this.setState({ pokemons: this.props.pokemons.results.slice(page * TILES_BY_PAGE, (page + 1) * TILES_BY_PAGE) })
   }
 
-  handlePaginationChange(val) {
+  handlePaginationChange() {
     this.setState({ resetPage: false })
   }
 
   handleSearch(val) {
-    // const pokemons = this.props.pokemons.results.filter(p => p.name.includes(val))
     this.setState({ search: val, selectedPage: 0, resetPage: true })
   }
 
@@ -79,8 +78,17 @@ class App extends Component {
     return this.filteredPokemons() && Math.ceil(this.filteredPokemons().length / TILES_BY_PAGE)
   }
 
+  handleFavoriteClick() {
+    this.props.invertPokemonFavorite(this.state.selectedPokemonName)
+  }
+
+  isSelectedPokemonFavorite() {
+    const pokemon = this.props.pokemons.find(p => p.name === this.state.selectedPokemonName)
+    return pokemon && pokemon.isFavorite
+  }
+
   render() {
-    const { classes, pokemons } = this.props
+    const { classes } = this.props
     const { dialogOpen, selectedPokemon, selectedPokemonName, resetPage } = this.state
 
     return (
@@ -88,6 +96,7 @@ class App extends Component {
         <CssBaseline/>
         <SearchAppBar onChange={e => this.handleSearch(e)}/>
         <Container className={classes.container}>
+          <FavoritePokemons showDialog={e => this.showDialog(e)}/>
           <PokemonList pokemons={this.pokemonsToShow()} showDialog={e => this.showDialog(e)}/>
           {this.numberOfPages() > 1 ?
             <Pagination
@@ -97,11 +106,26 @@ class App extends Component {
               reset={resetPage}
             /> : null}
 
-          <PokemonDialog data={selectedPokemon} name={selectedPokemonName} selected={selectedPokemon} open={dialogOpen} onClose={() => this.handleClose()}/>
+          <PokemonDialog
+            data={selectedPokemon}
+            name={selectedPokemonName}
+            isFavorite={this.isSelectedPokemonFavorite()}
+            open={dialogOpen}
+            onFavoriteClick={() => this.handleFavoriteClick()}
+            onClose={() => this.handleClose()}
+          />
         </Container>
       </>
     )
   }
+}
+
+// ===================================================================================================================
+//      PROPTYPES
+// ===================================================================================================================
+
+App.propTypes = {
+  classes: PropTypes.object.isRequired
 }
 
 // ===================================================================================================================
@@ -120,7 +144,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setPokemons: data => {dispatch({ type: 'SET_POKEMONS', data: data })}
+    setPokemons: data => {dispatch({ type: 'SET_POKEMONS', data: data })},
+    invertPokemonFavorite: data => {dispatch({ type: 'INVERT_POKEMON_FAVORITE', name: data })}
   }
 }
 
@@ -128,7 +153,7 @@ const mapDispatchToProps = dispatch => {
 //      STYLES
 // ===================================================================================================================
 
-const styles = theme => ({
+const styles = () => ({
   '@global': {
     body: {
       padding: '0'
@@ -138,11 +163,6 @@ const styles = theme => ({
     padding: '100px 40px 0'
   }
 })
-
-
-App.propTypes = {
-  classes: PropTypes.object.isRequired
-}
 
 export default compose(
   withStyles(styles, { name: 'App' }),

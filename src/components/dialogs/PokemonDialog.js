@@ -1,13 +1,19 @@
-import React from 'react'
+import React, { Component } from 'react'
 
-import { styled, makeStyles } from '@material-ui/core/styles'
+import { withStyles } from '@material-ui/core/styles'
 
 import Dialog from '@material-ui/core/Dialog'
-import DialogTitle from '@material-ui/core/DialogTitle'
+import MuiDialogTitle from '@material-ui/core/DialogTitle'
 import Chip from '@material-ui/core/Chip'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Grid from "@material-ui/core/Grid"
+import Grid from '@material-ui/core/Grid'
+import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
+import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder'
+import FavoriteIcon from '@material-ui/icons/Favorite'
+import Typography from '@material-ui/core/Typography'
+import PropTypes from "prop-types";
 
 const TYPE_COLORS = {
   normal: 'A8A77A',
@@ -30,72 +36,119 @@ const TYPE_COLORS = {
   fairy: 'D685AD'
 }
 
-export default function PokemonDialog(props) {
-  const { onClose, selected, open, data } = props
-  const classes = useStyles()
+// ===================================================================================================================
+//      CLASS
+// ===================================================================================================================
 
-  const name = props.name && props.name.slice(0, 1).toUpperCase() + props.name.slice(1, props.name.length)
-  let id = data && data.id && new Array(4 - (data.id + '').length).join('0') + data.id
-  const imgUrl = data && `https://assets.pokemon.com/assets/cms2/img/pokedex/full/${id}.png`
-
-  const handleClose = () => {
-    onClose(selected)
+class PokemonDialog extends Component {
+  handleFavoriteClick() {
+    this.props.onFavoriteClick()
+    this.props.onClose()
   }
 
-  const handleListItemClick = value => {
-    onClose(value)
-  }
+  render() {
+    const { classes, data, onClose, open, isFavorite } = this.props
 
-  const types = data && data.types.sort((a, b) => (a.slot > b.slot) ? 1 : -1).map(t => {
-    return (
-      <Chip size="small" className={classes.chip} label={t.type.name} style={{ backgroundColor: `#${TYPE_COLORS[t.type.name]}` }} key={t.slot}/>
-    )
-  })
+    const name = this.props.name && this.props.name.slice(0, 1).toUpperCase() + this.props.name.slice(1, this.props.name.length)
+    let id = data && data.id && new Array(4 - (data.id + '').length).join('0') + data.id
+    const imgUrl = data && `https://assets.pokemon.com/assets/cms2/img/pokedex/full/${id}.png`
 
-  const stats = data && data.stats.map(s => {
-    return (
-      <Grid container key={s.stat.name} alignItems="center" className={classes.stat}>
-        <Grid item xs={4}>
-          <span>{s.stat.name}</span>
+    const types = data && data.types.sort((a, b) => (a.slot > b.slot) ? 1 : -1).map(t => {
+      return (
+        <Chip size="small" className={classes.chip} label={t.type.name} style={{ backgroundColor: `#${TYPE_COLORS[t.type.name]}` }} key={t.slot}/>
+      )
+    })
+
+    const stats = data && data.stats.map(s => {
+      return (
+        <Grid container key={s.stat.name} alignItems="center" className={classes.stat}>
+          <Grid item xs={4}>
+            <span>{s.stat.name}</span>
+          </Grid>
+          <Grid item xs={8}>
+            <LinearProgress variant="determinate" className={classes.progress} value={s.base_stat}/>
+          </Grid>
         </Grid>
-        <Grid item xs={8}>
-          <LinearProgress variant="determinate" className={classes.progress} value={s.base_stat}/>
-        </Grid>
-      </Grid>
-    )
-  })
+      )
+    })
 
-  return (
-    <Dialog onClose={handleClose} fullWidth={true} aria-labelledby="simple-dialog-title" open={open}>
-      <DialogTitle id="simple-dialog-title">{name}</DialogTitle>
-      <div className={classes.content}>
-        {data ? (<>
-          <img src={imgUrl} alt="image" width="200"/>
-          <div className={classes.infos}>
-            <div className={classes.types}>
-              {types}
-            </div>
-            <Grid className={classes.measures} container>
-              <Grid item xs={6}>
-                <div>height: {data && data.height}</div>
-              </Grid>
-              <Grid item xs={6}>
-                <div>weight: {data && data.weight}</div>
-              </Grid>
-            </Grid>
-            {stats}
+    const DialogTitle = withStyles(styles)(props => {
+      const { children, classes, onClose, ...other } = props
+      return (
+        <MuiDialogTitle disableTypography className={classes.root} {...other}>
+          <Typography variant="h6">{children}</Typography>
+          <div className={classes.actions}>
+            <IconButton aria-label="favorite" className={classes.favoriteButton} onClick={() => this.handleFavoriteClick()}>
+              {isFavorite ? <FavoriteIcon/> : <FavoriteBorderIcon/>}
+            </IconButton>
+            <IconButton aria-label="close" className={classes.closeButton} onClick={onClose}>
+              <CloseIcon/>
+            </IconButton>
           </div>
-        </>) : (<CircularProgress/>)}
-      </div>
-    </Dialog>
-  )
+        </MuiDialogTitle>
+      )
+    })
+
+    return (
+      <Dialog onClose={onClose} fullWidth={true} aria-labelledby="simple-dialog-title" open={open}>
+        <DialogTitle id="simple-dialog-title" onClose={onClose}>
+          {name}
+        </DialogTitle>
+        <div className={classes.content}>
+          {data ? (<>
+            <img src={imgUrl} alt={name} width="200"/>
+            <div className={classes.infos}>
+              <div className={classes.types}>
+                {types}
+              </div>
+              <Grid className={classes.measures} container>
+                <Grid item xs={6}>
+                  <div>height: {data && data.height / 10} m</div>
+                </Grid>
+                <Grid item xs={6}>
+                  <div>weight: {data && data.weight / 10} kg</div>
+                </Grid>
+              </Grid>
+              {stats}
+            </div>
+          </>) : (<CircularProgress/>)}
+        </div>
+      </Dialog>
+    )
+  }
+}
+
+// ===================================================================================================================
+//      PROPTYPES
+// ===================================================================================================================
+
+PokemonDialog.propTypes = {
+  classes: PropTypes.object.isRequired,
+  onFavoriteClick: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  data: PropTypes.object,
+  open: PropTypes.bool.isRequired,
+  isFavorite: PropTypes.bool,
+  name: PropTypes.string
 }
 
 // ===================================================================================================================
 //      STYLES
 // ===================================================================================================================
 
-const useStyles = makeStyles({
+const styles = theme => ({
+  root: {
+    margin: 0,
+    padding: theme.spacing(2),
+  },
+  closeButton: {
+    color: theme.palette.grey[500],
+  },
+  actions: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1)
+  },
   content: {
     padding: '0 20px 20px',
     minHeight: '240px',
@@ -126,3 +179,5 @@ const useStyles = makeStyles({
     height: '8px'
   }
 })
+
+export default withStyles(styles)(PokemonDialog)

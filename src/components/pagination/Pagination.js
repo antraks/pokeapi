@@ -22,17 +22,13 @@ class Pagination extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    // Typical usage (don't forget to compare props):
-    // if (this.props.userID !== prevProps.userID) {
-    //   this.fetchData(this.props.userID);
-    // }
     if (this.props.reset !== prevProps.reset) {
       this.setState({ value: 1 })
     }
   }
 
   render() {
-    const { classes, max, reset } = this.props
+    const { classes, max } = this.props
 
     return (
       <>
@@ -55,17 +51,23 @@ class Pagination extends Component {
 }
 
 // ===================================================================================================================
+//      PROPTYPES
+// ===================================================================================================================
+
+Pagination.propTypes = {
+  classes: PropTypes.object.isRequired,
+  reset: PropTypes.bool.isRequired,
+  onSelect: PropTypes.func.isRequired
+}
+
+// ===================================================================================================================
 //      STYLES
 // ===================================================================================================================
 
-const styles = theme => ({
+const styles = () => ({
   slider: {
     marginTop: '30px'
   }
 })
-
-Pagination.propTypes = {
-  classes: PropTypes.object.isRequired
-}
 
 export default withStyles(styles)(Pagination)

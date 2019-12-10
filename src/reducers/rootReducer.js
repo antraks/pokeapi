@@ -7,6 +7,13 @@ const rootReducer = (state = initState, action) => {
     return { ...state, pokemons: action.data }
   }
 
+  if (action.type === 'INVERT_POKEMON_FAVORITE') {
+    const pokemons = [...state.pokemons]
+    const pokemon = pokemons.find(p => p.name === action.name)
+    pokemon.isFavorite = !!pokemon.isFavorite ? !pokemon.isFavorite : true
+    return { ...state, pokemons }
+  }
+
   return state
 }
 

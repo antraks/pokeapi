@@ -8,7 +8,6 @@ import Avatar from '@material-ui/core/Avatar'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import FavoriteIcon from '@material-ui/icons/Favorite'
-import IconButton from '@material-ui/core/IconButton'
 
 // ===================================================================================================================
 //      CLASS
@@ -45,17 +44,30 @@ class PokemonTile extends Component {
           }
           title={name}
         />
+        {this.props.isFavorite ? <FavoriteIcon className={classes.favorite}/> : null}
       </Card>
     )
   }
 }
 
 // ===================================================================================================================
+//      PROPTYPES
+// ===================================================================================================================
+
+PokemonTile.propTypes = {
+  classes: PropTypes.object.isRequired,
+  name: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
+  isFavorite: PropTypes.bool
+}
+
+// ===================================================================================================================
 //      STYLES
 // ===================================================================================================================
 
-const styles = theme => ({
+const styles = () => ({
   card: {
+    position: 'relative',
     userSelect: 'none',
     cursor: 'pointer',
     boxShadow: '0 1px 2px rgba(0, 0, 0, 0.15)',
@@ -65,11 +77,17 @@ const styles = theme => ({
     '&:hover': {
       boxShadow: '0 5px 15px rgba(0, 0, 0, 0.3)'
     }
+  },
+  avatar: {
+    backgroundColor: '#d7d7d7'
+  },
+  favorite: {
+    position: 'absolute',
+    color: '#aaa',
+    right: '10px',
+    top: 'calc(50% - 12px)',
+    fontSize: '24px'
   }
 })
-
-PokemonTile.propTypes = {
-  classes: PropTypes.object.isRequired
-}
 
 export default withStyles(styles)(PokemonTile)
